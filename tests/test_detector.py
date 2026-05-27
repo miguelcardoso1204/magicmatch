@@ -143,3 +143,25 @@ def test_detects_archive_format(tmp_path, raw_bytes, expected_name):
     candidates = Detector().identify(f)
     names = [c.name for c in candidates]
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name",
+    [
+        (b"\x00" * 32769 + b"CD001" + b"\x00" * 10, "ISO 9660 disc image"),
+        (b"QFI\xfb" + b"\x00" * 10, "QCOW2 disk image"),
+        (b"vhdxfile" + b"\x00" * 10, "VHDX disk image"),
+        (b"hsqs" + b"\x00" * 10, "SquashFS filesystem"),
+        (b"\x00" * 1080 + b"\x53\xef" + b"\x00" * 10, "ext2/3/4 filesystem"),
+        (b"\xeb\x52\x90" + b"NTFS    " + b"\x00" * 10, "NTFS filesystem"),
+        (b"\xd4\xc3\xb2\xa1" + b"\x00" * 10, "PCAP capture (little-endian)"),
+        (b"\xa1\xb2\xc3\xd4" + b"\x00" * 10, "PCAP capture (big-endian)"),
+        (b"\x0a\x0d\x0d\x0a" + b"\x00" * 10, "PCAPNG capture"),
+    ],
+)
+def test_detects_disk_and_network_format(tmp_path, raw_bytes, expected_name):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
