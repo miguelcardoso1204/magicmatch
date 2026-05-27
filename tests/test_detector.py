@@ -34,3 +34,17 @@ def test_candidates_sorted_by_confidence_descending(tmp_path):
     assert results[0].name == "Long"
     assert results[1].name == "Short"
     assert results[0].confidence > results[1].confidence
+
+
+def test_detects_png(tmp_path):
+    f = tmp_path / "test.png"
+    f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+    candidates = Detector().identify(f)
+    assert len(candidates) >= 1
+    top = candidates[0]
+    assert top.name == "PNG image"
+    assert top.mime_type == "image/png"
+    assert top.confidence == 100
+    assert top.extensions == [".png"]
+    assert top.matched_bytes == b"\x89PNG\r\n\x1a\n"
+    assert top.offset == 0

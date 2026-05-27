@@ -21,4 +21,12 @@ class Candidate:
     offset: int
 
 
-SIGNATURES: list[Signature] = []
+SIGNATURES: list[Signature] = [
+    Signature(
+        name="PNG image",
+        mime_type="image/png",
+        magic=b"\x89PNG\r\n\x1a\n",
+        offset=0,
+        extensions=[".png"],
+    ),
+]
