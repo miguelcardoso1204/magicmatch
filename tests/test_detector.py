@@ -201,3 +201,27 @@ def test_detects_crypto_text_format(tmp_path, text_content, expected_name):
     candidates = Detector().identify(f)
     names = [c.name for c in candidates]
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name",
+    [
+        (b"SQLite format 3\x00" + b"\x00" * 10, "SQLite database"),
+        (b"ID3" + b"\x00" * 10, "MP3 audio"),
+        (b"\x00\x00\x00\x18ftyp" + b"\x00" * 10, "MP4 video"),
+        (b"RIFF\x12\x34\x56\x78WAVE" + b"\x00" * 10, "WAV audio"),
+        (b"fLaC" + b"\x00" * 10, "FLAC audio"),
+        (b"OggS" + b"\x00" * 10, "OGG container"),
+        (b"\x1a\x45\xdf\xa3" + b"\x00" * 10, "Matroska / WebM"),
+        (b"RIFF\x12\x34\x56\x78AVI " + b"\x00" * 10, "AVI video"),
+        (b"FWS" + b"\x00" * 10, "SWF (Flash)"),
+        (b"\x03\x00\x08\x00" + b"\x00" * 10, "Android Binary XML"),
+        (b"\x27\x05\x19\x56" + b"\x00" * 10, "U-Boot image"),
+    ],
+)
+def test_detects_media_format(tmp_path, raw_bytes, expected_name):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
