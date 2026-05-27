@@ -126,4 +126,49 @@ SIGNATURES: list[Signature] = [
         magic=b"ITSF",
         extensions=[".chm"],
     ),
+    Signature(
+        name="ELF executable",
+        mime_type="application/x-elf",
+        magic=b"\x7fELF",
+        extensions=[".elf", ".so", ""],
+    ),
+    Signature(
+        name="PE executable",
+        mime_type="application/vnd.microsoft.portable-executable",
+        magic=b"MZ",
+        extensions=[".exe", ".dll", ".sys"],
+    ),
+    Signature(
+        name="Mach-O 32-bit (little-endian)",
+        mime_type="application/x-mach-binary",
+        magic=b"\xce\xfa\xed\xfe",
+    ),
+    Signature(
+        name="Mach-O 64-bit (little-endian)",
+        mime_type="application/x-mach-binary",
+        magic=b"\xcf\xfa\xed\xfe",
+    ),
+    Signature(
+        name="Mach-O fat binary",
+        mime_type="application/x-mach-binary",
+        magic=b"\xca\xfe\xba\xbe",
+    ),
+    Signature(
+        name="Java class file",
+        mime_type="application/java-vm",
+        magic=b"\xca\xfe\xba\xbe",
+        extensions=[".class"],
+    ),
+    Signature(
+        name="Dalvik Executable",
+        mime_type="application/vnd.android.dex",
+        magic=b"dex\n",
+        extensions=[".dex"],
+    ),
+    Signature(
+        name="AutoIt3 compiled script",
+        mime_type="application/x-autoit",
+        magic=b"AU3!",
+        extensions=[".exe"],
+    ),
 ]

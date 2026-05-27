@@ -91,3 +91,31 @@ def test_detects_document_format(tmp_path, raw_bytes, expected_name, expected_mi
     candidates = Detector().identify(f)
     names = [c.name for c in candidates]
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name, expected_mime",
+    [
+        (b"\x7fELF" + b"\x00" * 10, "ELF executable", "application/x-elf"),
+        (b"MZ" + b"\x00" * 10, "PE executable",
+         "application/vnd.microsoft.portable-executable"),
+        (b"\xce\xfa\xed\xfe" + b"\x00" * 10, "Mach-O 32-bit (little-endian)",
+         "application/x-mach-binary"),
+        (b"\xcf\xfa\xed\xfe" + b"\x00" * 10, "Mach-O 64-bit (little-endian)",
+         "application/x-mach-binary"),
+        (b"\xca\xfe\xba\xbe" + b"\x00" * 10, "Mach-O fat binary",
+         "application/x-mach-binary"),
+        (b"\xca\xfe\xba\xbe" + b"\x00" * 10, "Java class file",
+         "application/java-vm"),
+        (b"dex\n035\x00" + b"\x00" * 10, "Dalvik Executable",
+         "application/vnd.android.dex"),
+        (b"AU3!" + b"\x00" * 10, "AutoIt3 compiled script",
+         "application/x-autoit"),
+    ],
+)
+def test_detects_executable_format(tmp_path, raw_bytes, expected_name, expected_mime):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
