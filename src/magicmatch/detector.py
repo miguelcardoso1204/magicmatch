@@ -64,4 +64,12 @@ class Detector:
                 )
 
         candidates.sort(key=lambda c: c.confidence, reverse=True)
-        return candidates
+
+        seen: set[tuple[str, str]] = set()
+        deduped: list[Candidate] = []
+        for c in candidates:
+            key = (c.name, c.mime_type)
+            if key not in seen:
+                seen.add(key)
+                deduped.append(c)
+        return deduped

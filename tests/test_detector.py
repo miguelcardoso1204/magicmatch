@@ -225,3 +225,36 @@ def test_detects_media_format(tmp_path, raw_bytes, expected_name):
     candidates = Detector().identify(f)
     names = [c.name for c in candidates]
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "content, expected_name, expected_mime",
+    [
+        (b"#!/bin/bash\necho hello\n", "Bash / sh script", "application/x-sh"),
+        (b"#!/usr/bin/env python3\nprint('hi')\n", "Python script", "text/x-python"),
+        (b"#!/usr/bin/perl\nprint 'hi';\n", "Perl script", "text/x-perl"),
+        (b"#!/usr/bin/env ruby\nputs 'hi'\n", "Ruby script", "text/x-ruby"),
+        (b"#!/usr/bin/env node\nconsole.log('hi');\n", "Node.js script",
+         "application/javascript"),
+        (b"<?php\necho 'hi';\n", "PHP script", "application/x-php"),
+        (b"param(\n  [string]$Name\n)\n", "PowerShell script",
+         "application/x-powershell"),
+        (b"WScript.Echo 'hello'\n", "VBScript", "text/vbscript"),
+        (b"<job id='main'>\n<script language='JScript'>\n", "Windows Script File",
+         "application/x-wsf"),
+        (b"<HTA:APPLICATION ID='MyApp'>\n", "HTA application",
+         "application/x-hta"),
+        (b"-----BEGIN CERTIFICATE-----\nMIIB\n", "PEM certificate or key",
+         "application/x-pem-file"),
+        (b"<?xml version='1.0'?>\n<root/>\n", "XML document", "application/xml"),
+        (b"<!DOCTYPE html>\n<html>\n", "HTML document", "text/html"),
+    ],
+)
+def test_detects_text_format(tmp_path, content, expected_name, expected_mime):
+    f = tmp_path / "test"
+    f.write_bytes(content)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+    match = next(c for c in candidates if c.name == expected_name)
+    assert match.confidence <= 80, "Text matches must be capped at 80%"
