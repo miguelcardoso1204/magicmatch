@@ -25,11 +25,11 @@ def test_candidates_sorted_by_confidence_descending(tmp_path):
     from magicmatch.signatures import Signature
 
     sigs = [
-        Signature(name="Short", mime_type="a/b", magic=b"\xAA\xBB"),
-        Signature(name="Long", mime_type="c/d", magic=b"\xAA\xBB\xCC\xDD\xEE\xFF\x11\x22"),
+        Signature(name="Short", mime_type="a/b", magic=b"\xaa\xbb"),
+        Signature(name="Long", mime_type="c/d", magic=b"\xaa\xbb\xcc\xdd\xee\xff\x11\x22"),
     ]
     f = tmp_path / "test.bin"
-    f.write_bytes(b"\xAA\xBB\xCC\xDD\xEE\xFF\x11\x22" + b"\x00" * 10)
+    f.write_bytes(b"\xaa\xbb\xcc\xdd\xee\xff\x11\x22" + b"\x00" * 10)
     results = Detector(signatures=sigs).identify(f)
     assert results[0].name == "Long"
     assert results[1].name == "Short"
@@ -79,8 +79,11 @@ def test_detects_image_format(tmp_path, raw_bytes, expected_name, expected_mime)
         (b"%PDF-1.4\n" + b"\x00" * 10, "PDF document", "application/pdf"),
         (b"PK\x03\x04" + b"\x00" * 10, "ZIP archive", "application/zip"),
         (b"PK\x03\x04" + b"\x00" * 10, "Java Archive", "application/java-archive"),
-        (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1" + b"\x00" * 10, "OLE2 compound document",
-         "application/vnd.ms-office"),
+        (
+            b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1" + b"\x00" * 10,
+            "OLE2 compound document",
+            "application/vnd.ms-office",
+        ),
         (b"{\\rtf1" + b"\x00" * 10, "RTF document", "application/rtf"),
         (b"ITSF" + b"\x00" * 10, "CHM help file", "application/vnd.ms-htmlhelp"),
     ],
@@ -97,20 +100,21 @@ def test_detects_document_format(tmp_path, raw_bytes, expected_name, expected_mi
     "raw_bytes, expected_name, expected_mime",
     [
         (b"\x7fELF" + b"\x00" * 10, "ELF executable", "application/x-elf"),
-        (b"MZ" + b"\x00" * 10, "PE executable",
-         "application/vnd.microsoft.portable-executable"),
-        (b"\xce\xfa\xed\xfe" + b"\x00" * 10, "Mach-O 32-bit (little-endian)",
-         "application/x-mach-binary"),
-        (b"\xcf\xfa\xed\xfe" + b"\x00" * 10, "Mach-O 64-bit (little-endian)",
-         "application/x-mach-binary"),
-        (b"\xca\xfe\xba\xbe" + b"\x00" * 10, "Mach-O fat binary",
-         "application/x-mach-binary"),
-        (b"\xca\xfe\xba\xbe" + b"\x00" * 10, "Java class file",
-         "application/java-vm"),
-        (b"dex\n035\x00" + b"\x00" * 10, "Dalvik Executable",
-         "application/vnd.android.dex"),
-        (b"AU3!" + b"\x00" * 10, "AutoIt3 compiled script",
-         "application/x-autoit"),
+        (b"MZ" + b"\x00" * 10, "PE executable", "application/vnd.microsoft.portable-executable"),
+        (
+            b"\xce\xfa\xed\xfe" + b"\x00" * 10,
+            "Mach-O 32-bit (little-endian)",
+            "application/x-mach-binary",
+        ),
+        (
+            b"\xcf\xfa\xed\xfe" + b"\x00" * 10,
+            "Mach-O 64-bit (little-endian)",
+            "application/x-mach-binary",
+        ),
+        (b"\xca\xfe\xba\xbe" + b"\x00" * 10, "Mach-O fat binary", "application/x-mach-binary"),
+        (b"\xca\xfe\xba\xbe" + b"\x00" * 10, "Java class file", "application/java-vm"),
+        (b"dex\n035\x00" + b"\x00" * 10, "Dalvik Executable", "application/vnd.android.dex"),
+        (b"AU3!" + b"\x00" * 10, "AutoIt3 compiled script", "application/x-autoit"),
     ],
 )
 def test_detects_executable_format(tmp_path, raw_bytes, expected_name, expected_mime):
@@ -234,18 +238,21 @@ def test_detects_media_format(tmp_path, raw_bytes, expected_name):
         (b"#!/usr/bin/env python3\nprint('hi')\n", "Python script", "text/x-python"),
         (b"#!/usr/bin/perl\nprint 'hi';\n", "Perl script", "text/x-perl"),
         (b"#!/usr/bin/env ruby\nputs 'hi'\n", "Ruby script", "text/x-ruby"),
-        (b"#!/usr/bin/env node\nconsole.log('hi');\n", "Node.js script",
-         "application/javascript"),
+        (b"#!/usr/bin/env node\nconsole.log('hi');\n", "Node.js script", "application/javascript"),
         (b"<?php\necho 'hi';\n", "PHP script", "application/x-php"),
-        (b"param(\n  [string]$Name\n)\n", "PowerShell script",
-         "application/x-powershell"),
+        (b"param(\n  [string]$Name\n)\n", "PowerShell script", "application/x-powershell"),
         (b"WScript.Echo 'hello'\n", "VBScript", "text/vbscript"),
-        (b"<job id='main'>\n<script language='JScript'>\n", "Windows Script File",
-         "application/x-wsf"),
-        (b"<HTA:APPLICATION ID='MyApp'>\n", "HTA application",
-         "application/x-hta"),
-        (b"-----BEGIN CERTIFICATE-----\nMIIB\n", "PEM certificate or key",
-         "application/x-pem-file"),
+        (
+            b"<job id='main'>\n<script language='JScript'>\n",
+            "Windows Script File",
+            "application/x-wsf",
+        ),
+        (b"<HTA:APPLICATION ID='MyApp'>\n", "HTA application", "application/x-hta"),
+        (
+            b"-----BEGIN CERTIFICATE-----\nMIIB\n",
+            "PEM certificate or key",
+            "application/x-pem-file",
+        ),
         (b"<?xml version='1.0'?>\n<root/>\n", "XML document", "application/xml"),
         (b"<!DOCTYPE html>\n<html>\n", "HTML document", "text/html"),
     ],

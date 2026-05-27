@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from magicmatch.detector import Detector
-from magicmatch.signatures import SIGNATURES, Candidate
+from magicmatch.signatures import SIGNATURES
 
 BANNER = r"""
                        _                       _       _
@@ -30,18 +30,20 @@ def main(argv: list[str] | None = None) -> None:
         description="Identify file types by inspecting magic bytes.",
     )
     parser.add_argument("file", nargs="?", help="File to identify")
-    parser.add_argument("--top", type=int, default=3, metavar="N",
-                        help="Show top N candidates (default: 3)")
-    parser.add_argument("--min-confidence", type=int, default=30, metavar="N",
-                        help="Minimum confidence %% to show (default: 30)")
-    parser.add_argument("--verbose", action="store_true",
-                        help="Show matched hex bytes and offset")
-    parser.add_argument("--json", action="store_true",
-                        help="Output results as JSON")
-    parser.add_argument("--list", action="store_true",
-                        help="List all supported formats")
-    parser.add_argument("-q", "--quiet", action="store_true",
-                        help="Suppress the banner")
+    parser.add_argument(
+        "--top", type=int, default=3, metavar="N", help="Show top N candidates (default: 3)"
+    )
+    parser.add_argument(
+        "--min-confidence",
+        type=int,
+        default=30,
+        metavar="N",
+        help="Minimum confidence %% to show (default: 30)",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Show matched hex bytes and offset")
+    parser.add_argument("--json", action="store_true", help="Output results as JSON")
+    parser.add_argument("--list", action="store_true", help="List all supported formats")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress the banner")
     args = parser.parse_args(argv)
 
     if args.list:
@@ -66,6 +68,7 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.json:
         import json
+
         output = {
             "file": str(path),
             "candidates": [
