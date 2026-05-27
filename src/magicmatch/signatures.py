@@ -78,4 +78,52 @@ SIGNATURES: list[Signature] = [
         magic=b"\x00\x00\x01\x00",
         extensions=[".ico"],
     ),
+    Signature(
+        name="PDF document",
+        mime_type="application/pdf",
+        magic=b"%PDF",
+        extensions=[".pdf"],
+    ),
+    Signature(
+        name="ZIP archive",
+        mime_type="application/zip",
+        magic=b"PK\x03\x04",
+        extensions=[".zip"],
+    ),
+    Signature(
+        name="Java Archive",
+        mime_type="application/java-archive",
+        magic=b"PK\x03\x04",
+        extensions=[".jar"],
+    ),
+    Signature(
+        name="Office Open XML",
+        mime_type="application/vnd.openxmlformats",
+        magic=b"PK\x03\x04",
+        extensions=[".docx", ".xlsx", ".pptx"],
+    ),
+    Signature(
+        name="Android APK",
+        mime_type="application/vnd.android.package-archive",
+        magic=b"PK\x03\x04",
+        extensions=[".apk"],
+    ),
+    Signature(
+        name="OLE2 compound document",
+        mime_type="application/vnd.ms-office",
+        magic=b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1",
+        extensions=[".doc", ".xls", ".ppt", ".msi"],
+    ),
+    Signature(
+        name="RTF document",
+        mime_type="application/rtf",
+        magic=b"{\\rtf",
+        extensions=[".rtf"],
+    ),
+    Signature(
+        name="CHM help file",
+        mime_type="application/vnd.ms-htmlhelp",
+        magic=b"ITSF",
+        extensions=[".chm"],
+    ),
 ]

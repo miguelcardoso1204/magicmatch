@@ -71,3 +71,23 @@ def test_detects_image_format(tmp_path, raw_bytes, expected_name, expected_mime)
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
     match = next(c for c in candidates if c.name == expected_name)
     assert match.mime_type == expected_mime
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name, expected_mime",
+    [
+        (b"%PDF-1.4\n" + b"\x00" * 10, "PDF document", "application/pdf"),
+        (b"PK\x03\x04" + b"\x00" * 10, "ZIP archive", "application/zip"),
+        (b"PK\x03\x04" + b"\x00" * 10, "Java Archive", "application/java-archive"),
+        (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1" + b"\x00" * 10, "OLE2 compound document",
+         "application/vnd.ms-office"),
+        (b"{\\rtf1" + b"\x00" * 10, "RTF document", "application/rtf"),
+        (b"ITSF" + b"\x00" * 10, "CHM help file", "application/vnd.ms-htmlhelp"),
+    ],
+)
+def test_detects_document_format(tmp_path, raw_bytes, expected_name, expected_mime):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
