@@ -1,0 +1,2 @@
+[console_scripts]
+magicmatch = magicmatch.cli:main

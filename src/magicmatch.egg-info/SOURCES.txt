@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+src/magicmatch/__init__.py
+src/magicmatch/cli.py
+src/magicmatch/detector.py
+src/magicmatch/signatures.py
+src/magicmatch.egg-info/PKG-INFO
+src/magicmatch.egg-info/SOURCES.txt
+src/magicmatch.egg-info/dependency_links.txt
+src/magicmatch.egg-info/entry_points.txt
+src/magicmatch.egg-info/requires.txt
+src/magicmatch.egg-info/top_level.txt
