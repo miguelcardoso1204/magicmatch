@@ -48,3 +48,26 @@ def test_detects_png(tmp_path):
     assert top.extensions == [".png"]
     assert top.matched_bytes == b"\x89PNG\r\n\x1a\n"
     assert top.offset == 0
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name, expected_mime",
+    [
+        (b"\xff\xd8\xff" + b"\x00" * 10, "JPEG image", "image/jpeg"),
+        (b"GIF87a" + b"\x00" * 10, "GIF image", "image/gif"),
+        (b"GIF89a" + b"\x00" * 10, "GIF image", "image/gif"),
+        (b"BM" + b"\x00" * 10, "BMP image", "image/bmp"),
+        (b"RIFF\x12\x34\x56\x78WEBP" + b"\x00" * 10, "WebP image", "image/webp"),
+        (b"II*\x00" + b"\x00" * 10, "TIFF image (little-endian)", "image/tiff"),
+        (b"MM\x00*" + b"\x00" * 10, "TIFF image (big-endian)", "image/tiff"),
+        (b"\x00\x00\x01\x00" + b"\x00" * 10, "ICO icon", "image/x-icon"),
+    ],
+)
+def test_detects_image_format(tmp_path, raw_bytes, expected_name, expected_mime):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+    match = next(c for c in candidates if c.name == expected_name)
+    assert match.mime_type == expected_mime
