@@ -165,3 +165,39 @@ def test_detects_disk_and_network_format(tmp_path, raw_bytes, expected_name):
     candidates = Detector().identify(f)
     names = [c.name for c in candidates]
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name",
+    [
+        (b"regf" + b"\x00" * 10, "Windows Registry hive"),
+        (b"LfLe" + b"\x00" * 10, "Windows Event Log (v1)"),
+        (b"ElfFile\x00" + b"\x00" * 10, "Windows Event Log (v2)"),
+        (b"MDMP" + b"\x00" * 10, "Windows crash dump"),
+        (b"\x1e\x00\x00\x00SCCA" + b"\x00" * 10, "Windows Prefetch"),
+        (b"\x4c\x00\x00\x00\x01\x14\x02\x00" + b"\x00" * 10, "Windows LNK shortcut"),
+        (b"\x30\x82" + b"\x00" * 10, "PKCS#12 / PFX certificate"),
+        (b"\xfe\xed\xfe\xed" + b"\x00" * 10, "Java KeyStore"),
+    ],
+)
+def test_detects_forensic_format(tmp_path, raw_bytes, expected_name):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "text_content, expected_name",
+    [
+        (b"-----BEGIN PGP MESSAGE-----\n", "PGP message or key"),
+        (b"-----BEGIN OPENSSH PRIVATE KEY-----\n", "SSH private key (OpenSSH)"),
+    ],
+)
+def test_detects_crypto_text_format(tmp_path, text_content, expected_name):
+    f = tmp_path / "test"
+    f.write_bytes(text_content + b"\x00" * 100)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
