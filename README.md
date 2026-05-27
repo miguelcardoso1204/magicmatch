@@ -7,6 +7,8 @@ Built from scratch with no external dependencies (no `python-magic` / `libmagic`
 ## Installation
 
 ```bash
+git clone https://github.com/miguelcardoso1204/magicmatch.git
+cd magicmatch
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
