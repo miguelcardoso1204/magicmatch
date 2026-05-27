@@ -119,3 +119,27 @@ def test_detects_executable_format(tmp_path, raw_bytes, expected_name, expected_
     candidates = Detector().identify(f)
     names = [c.name for c in candidates]
     assert expected_name in names, f"Expected {expected_name!r}, got {names}"
+
+
+@pytest.mark.parametrize(
+    "raw_bytes, expected_name",
+    [
+        (b"\x1f\x8b" + b"\x00" * 10, "GZIP archive"),
+        (b"BZh" + b"\x00" * 10, "BZIP2 archive"),
+        (b"\xfd7zXZ\x00" + b"\x00" * 10, "XZ archive"),
+        (b"7z\xbc\xaf\x27\x1c" + b"\x00" * 10, "7-Zip archive"),
+        (b"Rar!\x1a\x07\x00" + b"\x00" * 10, "RAR archive (v4)"),
+        (b"Rar!\x1a\x07\x01\x00" + b"\x00" * 10, "RAR archive (v5)"),
+        (b"\x28\xb5\x2f\xfd" + b"\x00" * 10, "Zstandard archive"),
+        (b"\x04\x22\x4d\x18" + b"\x00" * 10, "LZ4 archive"),
+        (b"\x00" * 257 + b"ustar" + b"\x00" * 10, "TAR archive"),
+        (b"MSCF" + b"\x00" * 10, "CAB archive"),
+        (b"070701" + b"\x00" * 10, "CPIO archive"),
+    ],
+)
+def test_detects_archive_format(tmp_path, raw_bytes, expected_name):
+    f = tmp_path / "test"
+    f.write_bytes(raw_bytes)
+    candidates = Detector().identify(f)
+    names = [c.name for c in candidates]
+    assert expected_name in names, f"Expected {expected_name!r}, got {names}"
